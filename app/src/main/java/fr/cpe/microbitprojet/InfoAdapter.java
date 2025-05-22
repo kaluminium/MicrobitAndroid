@@ -33,6 +33,11 @@ public class InfoAdapter extends RecyclerView.Adapter<InfoAdapter.InfoViewHolder
         this.touchHelper = touchHelper;
     }
 
+    public void setItemList(List<RoomInfo> newList){
+        itemList.clear();
+        itemList.addAll(newList);
+    }
+
     public class InfoViewHolder extends RecyclerView.ViewHolder {
         TextView room;
         TextView humidity;

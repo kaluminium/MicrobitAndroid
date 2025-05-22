@@ -30,14 +30,13 @@ class UdpManager private constructor() {
     public fun connect(
         serverAddress: String,
         serverPort: Int,
-        onSuccess: () -> Unit,
+        onSuccess: (String) -> Unit,
         onFailure: () -> Unit
     ) {
         try {
             IP = serverAddress
             PORT = serverPort
-            UDPSocket = DatagramSocket()
-            UDPSocket!!.soTimeout = 2000
+
 
             sendMessage("ping", onSuccess, onFailure)
 
@@ -66,13 +65,20 @@ class UdpManager private constructor() {
         address = null
     }
 
-    public fun sendMessage(msg: String, onSuccess: () -> Unit, onFailure: () -> Unit) {
-        val sendData = "ping".toByteArray()
+    public fun sendMessage(msg: String, onSuccess: (String) -> Unit, onFailure: () -> Unit) {
+        UDPSocket = DatagramSocket()
+        UDPSocket!!.soTimeout = 2000
+
+        val sendData = msg.toByteArray()
         address = InetAddress.getByName(IP)
         val sendPacket = DatagramPacket(sendData, sendData.size, address, PORT)
 
         val receiveData = ByteArray(1024)
         val receivePacket = DatagramPacket(receiveData, receiveData.size)
+
+        if(UDPSocket?.isClosed == true){
+            connect(IP, PORT, {}, {})
+        }
 
         thread {
             var success = false
@@ -90,7 +96,8 @@ class UdpManager private constructor() {
                 println("Erreur: ${e.message}")
             }
             if (success) {
-                onSuccess()
+                val response = String(receivePacket.data, 0, receivePacket.length, Charsets.UTF_8)
+                onSuccess(response)
             } else {
                 onFailure()
             }

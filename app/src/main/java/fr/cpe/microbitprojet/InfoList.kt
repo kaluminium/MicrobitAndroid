@@ -1,100 +1,115 @@
-package fr.cpe.microbitprojet;
+package fr.cpe.microbitprojet
 
-import android.app.ActionBar;
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
+import android.content.Intent
+import android.os.Bundle
+import android.view.View
+import android.widget.Button
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import fr.cpe.microbitprojet.models.Info
+import fr.cpe.microbitprojet.models.RoomInfo
+import fr.cpe.microbitprojet.models.RoomInfoList
 
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+class InfoList : AppCompatActivity() {
+    private var adapter: InfoAdapter? = null
 
-import java.util.ArrayList;
-import java.util.List;
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-import fr.cpe.microbitprojet.models.Info;
-import fr.cpe.microbitprojet.models.RoomInfo;
-import fr.cpe.microbitprojet.models.RoomInfoList;
+        setContentView(R.layout.activity_info_list)
 
-public class InfoList extends AppCompatActivity {
-    private InfoAdapter adapter;
+        val decorView = window.decorView
+        val uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN
+        decorView.systemUiVisibility = uiOptions
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+        val backButton = findViewById<Button>(R.id.backButton)
+        val refreshButton = findViewById<Button>(R.id.refresh)
 
-        setContentView(R.layout.activity_info_list);
+        val items = RoomInfoList.jsonToList(
+            """{
+    "id1":{
+        "T":"1",
+        "L": "1",
+        "P":"1",
+        "H":"1"
+    },
+    "id2":{
+        "T":"1",
+        "L": "1",
+        "P":"1",
+        "H":"1"
+    }
+}"""
+        )
 
-        View decorView = getWindow().getDecorView();
-        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-        decorView.setSystemUiVisibility(uiOptions);
+        recyclerView.layoutManager = LinearLayoutManager(this)
 
-        RecyclerView recyclerView = findViewById(R.id.recyclerView);
-        Button button = findViewById(R.id.button);
-
-        List<RoomInfo> items = RoomInfoList.jsonToList("{\n" +
-                "    \"id1\":{\n" +
-                "        \"T\":\"1\",\n" +
-                "        \"L\": \"1\",\n" +
-                "        \"P\":\"1\",\n" +
-                "        \"H\":\"1\"\n" +
-                "    },\n" +
-                "    \"id2\":{\n" +
-                "        \"T\":\"1\",\n" +
-                "        \"L\": \"1\",\n" +
-                "        \"P\":\"1\",\n" +
-                "        \"H\":\"1\"\n" +
-                "    }\n" +
-                "}");
-
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(
-                ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
-
-            @Override
-            public boolean onMove(RecyclerView recyclerView,
-                                  RecyclerView.ViewHolder viewHolder,
-                                  RecyclerView.ViewHolder target) {
-                int fromPosition = viewHolder.getAdapterPosition();
-                int toPosition = target.getAdapterPosition();
-                adapter.swapItems(fromPosition, toPosition);
-                return true;
+        val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
+            ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0
+        ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                val fromPosition = viewHolder.adapterPosition
+                val toPosition = target.adapterPosition
+                adapter!!.swapItems(fromPosition, toPosition)
+                return true
             }
 
-            @Override
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
             }
 
-            @Override
-            public boolean isLongPressDragEnabled() {
-                return false;
+            override fun isLongPressDragEnabled(): Boolean {
+                return false
             }
-        });
+        })
 
-        itemTouchHelper.attachToRecyclerView(recyclerView);
-        adapter = new InfoAdapter(items, itemTouchHelper);
+        itemTouchHelper.attachToRecyclerView(recyclerView)
+        adapter = InfoAdapter(items, itemTouchHelper)
 
-        adapter.setOnItemClickListener(roomInfo -> {
-            Intent intent = new Intent(this, InfoOrderActivity.class);
-            intent.putExtra("room_name", roomInfo.getRoomName());
-            startActivity(intent);
-        });
+        refreshRecyclerView()
 
-        recyclerView.setAdapter(adapter);
 
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Info info = new Info("yes", "yes", "yes", "yes");
-                adapter.updateItem("Salle 2", info);
+        adapter!!.setOnItemClickListener { roomInfo: RoomInfo ->
+            val intent = Intent(
+                this,
+                InfoOrderActivity::class.java
+            )
+            intent.putExtra("room_name", roomInfo.roomName)
+            startActivity(intent)
+        }
+
+        recyclerView.adapter = adapter
+
+        backButton.setOnClickListener {
+            val info = Info("yes", "yes", "yes", "yes")
+            adapter!!.updateItem("Salle 2", info)
+        }
+
+        refreshButton.setOnClickListener {
+            refreshRecyclerView()
+        }
+
+
+    }
+
+    private fun refreshRecyclerView() {
+        UdpManager.getInstance().sendMessage("getValues()", { res: String ->
+            runOnUiThread {
+                val updatedList = RoomInfoList.jsonToList(res)
+                adapter?.setItemList(updatedList)
+                adapter?.notifyDataSetChanged()
             }
-        });
+        }, {
+            runOnUiThread {
+                Toast.makeText(this, "Échec de la récupération des données", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 }
