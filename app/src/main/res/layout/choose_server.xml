@@ -61,7 +61,8 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:fontFamily="@font/alata"
-            android:inputType="text" />
+            android:inputType="text"
+            android:text="192.168.1.110" />
 
         <TextView
             android:id="@+id/textView4"
@@ -76,7 +77,8 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:fontFamily="@font/alata"
-            android:inputType="number" />
+            android:inputType="number"
+            android:text="10000" />
 
         <TextView
             android:id="@+id/errorconnection"
