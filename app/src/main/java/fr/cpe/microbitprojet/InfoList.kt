@@ -84,6 +84,7 @@ class InfoList : AppCompatActivity() {
                 this,
                 InfoOrderActivity::class.java
             )
+            handler.removeCallbacks(updateRunnable)
             intent.putExtra("room_name", roomInfo.roomName)
             startActivity(intent)
         }
@@ -91,8 +92,9 @@ class InfoList : AppCompatActivity() {
         recyclerView.adapter = adapter
 
         backButton.setOnClickListener {
-            val info = Info("yes", "yes", "yes", "yes")
-            adapter!!.updateItem("Salle 2", info)
+            handler.removeCallbacks(updateRunnable)
+            val intent = Intent(this, ChooseServerActivity::class.java)
+            startActivity(intent)
         }
 
         refreshButton.setOnClickListener {
@@ -102,7 +104,7 @@ class InfoList : AppCompatActivity() {
         updateRunnable = object : Runnable {
             override fun run() {
                 refreshRecyclerView()
-                handler.postDelayed(this, 5000)
+                handler.postDelayed(this, 10000)
             }
         }
 
