@@ -76,7 +76,7 @@ public class InfoOrderActivity extends AppCompatActivity {
         buttonValidate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), String.format("%s:%s", roomName, adapter.getOrder()), Toast.LENGTH_SHORT).show();
+                sendValues(String.format("%s:%s", roomName, adapter.getOrder()));
             }
         });
 
@@ -92,5 +92,18 @@ public class InfoOrderActivity extends AppCompatActivity {
     private void returnToInfoListActivity(){
         Intent intent = new Intent(this, InfoList.class);
         startActivity(intent);
+    }
+
+    private void sendValues(String values) {
+        UdpManager.Companion.getInstance().sendMessage(
+            values,
+            msg -> {return null;},
+            () -> {
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Échec de la récupération des données", Toast.LENGTH_SHORT).show();
+                });
+                return null;
+            }
+        );
     }
 }
