@@ -2,6 +2,7 @@ package fr.cpe.microbitprojet
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
@@ -15,6 +16,8 @@ import fr.cpe.microbitprojet.models.RoomInfoList
 
 class InfoList : AppCompatActivity() {
     private var adapter: InfoAdapter? = null
+    private val handler = android.os.Handler()
+    private lateinit var updateRunnable: Runnable
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,15 +99,21 @@ class InfoList : AppCompatActivity() {
             refreshRecyclerView()
         }
 
+        updateRunnable = object : Runnable {
+            override fun run() {
+                refreshRecyclerView()
+                handler.postDelayed(this, 5000)
+            }
+        }
 
+        handler.post(updateRunnable)
     }
 
     private fun refreshRecyclerView() {
         UdpManager.getInstance().sendMessage("getValues()", { res: String ->
             runOnUiThread {
                 val updatedList = RoomInfoList.jsonToList(res)
-                adapter?.setItemList(updatedList)
-                adapter?.notifyDataSetChanged()
+                adapter!!.compareAndApplyChanges(updatedList)
             }
         }, {
             runOnUiThread {
@@ -112,4 +121,10 @@ class InfoList : AppCompatActivity() {
             }
         })
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        handler.removeCallbacks(updateRunnable)
+    }
+
 }

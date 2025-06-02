@@ -49,4 +49,11 @@ public class Info {
     public void setPressure(String pressure){
         this.pressure = pressure;
     }
+
+    public boolean equals(Info other){
+        return this.temperature.equals(other.temperature) &&
+                this.humidity.equals(other.humidity) &&
+                this.light.equals(other.light) &&
+                this.pressure.equals(other.pressure);
+    }
 }

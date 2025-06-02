@@ -9,6 +9,8 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -111,6 +113,50 @@ public class InfoAdapter extends RecyclerView.Adapter<InfoAdapter.InfoViewHolder
             }
         }
         return -1;
+    }
+
+    private void removeItem(int position) {
+        itemList.remove(position);
+        notifyItemRemoved(position);
+    }
+
+    public void removeItem(String room) {
+        int position = getRoomPosition(room);
+        if(position == -1) return;
+        removeItem(position);
+    }
+
+    public void addItem(RoomInfo item) {
+        itemList.add(item);
+        notifyItemInserted(itemList.size() - 1);
+    }
+
+    public void compareAndApplyChanges(List<RoomInfo> newList) {
+        for (RoomInfo newItem : newList) {
+            int position = getRoomPosition(newItem.getRoomName());
+            if (position != -1) {
+                RoomInfo existingItem = itemList.get(position);
+                if (!existingItem.equals(newItem)) {
+                    existingItem.changeInfo(newItem.getInfo());
+                    notifyItemChanged(position);
+                }
+            } else {
+                addItem(newItem);
+            }
+        }
+        List<RoomInfo> copy = new ArrayList<>(itemList);
+        for (RoomInfo existingItem : copy) {
+            boolean found = false;
+            for (RoomInfo newItem : newList) {
+                if (existingItem.getRoomName().equals(newItem.getRoomName())) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                removeItem(existingItem.getRoomName());
+            }
+        }
     }
 
     public void setOnItemClickListener(OnItemClickListener listener) {

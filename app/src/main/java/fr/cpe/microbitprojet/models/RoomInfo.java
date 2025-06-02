@@ -76,6 +76,10 @@ public class RoomInfo {
     public String getLight(){
         return this.info.getLight();
     }
+
+    public Info getInfo(){
+        return this.info;
+    }
     public void changeInfo(
             String temperature,
             String humidity,
@@ -94,5 +98,9 @@ public class RoomInfo {
                 info.getHumidity(),
                 info.getLight(),
                 info.getPressure());
+    }
+
+    public boolean equals(RoomInfo other){
+        return this.roomName.equals(other.roomName) && this.info.equals(other.info);
     }
 }
