@@ -33,20 +33,7 @@ class InfoList : AppCompatActivity() {
         val refreshButton = findViewById<Button>(R.id.refresh)
 
         val items = RoomInfoList.jsonToList(
-            """{
-    "id1":{
-        "T":"1",
-        "L": "1",
-        "P":"1",
-        "H":"1"
-    },
-    "id2":{
-        "T":"1",
-        "L": "1",
-        "P":"1",
-        "H":"1"
-    }
-}"""
+            ""
         )
 
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -74,7 +61,9 @@ class InfoList : AppCompatActivity() {
         })
 
         itemTouchHelper.attachToRecyclerView(recyclerView)
-        adapter = InfoAdapter(items, itemTouchHelper)
+        if(adapter == null){
+            adapter = InfoAdapter(items, itemTouchHelper)
+        }
 
         refreshRecyclerView()
 
@@ -104,7 +93,7 @@ class InfoList : AppCompatActivity() {
         updateRunnable = object : Runnable {
             override fun run() {
                 refreshRecyclerView()
-                handler.postDelayed(this, 10000)
+                handler.postDelayed(this, 2000)
             }
         }
 
@@ -119,7 +108,7 @@ class InfoList : AppCompatActivity() {
             }
         }, {
             runOnUiThread {
-                Toast.makeText(this, "Échec de la récupération des données", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(this, "Échec de la récupération des données", Toast.LENGTH_SHORT).show()
             }
         })
     }

@@ -65,16 +65,16 @@ public class RoomInfo {
         return this.roomName;
     }
     public String getTemperature(){
-        return this.info.getTemperature();
+        return this.info.getTemperature() + "°C";
     }
     public String getHumidity(){
-        return this.info.getHumidity();
+        return this.info.getHumidity() + "%";
     }
     public String getPressure(){
-        return this.info.getPressure();
+        return this.info.getPressure() + "hPa";
     }
     public String getLight(){
-        return this.info.getLight();
+        return this.info.getLight() + "lux";
     }
 
     public Info getInfo(){

@@ -54,13 +54,6 @@ public class InfoAdapter extends RecyclerView.Adapter<InfoAdapter.InfoViewHolder
             temperature = itemView.findViewById(R.id.temp);
             light = itemView.findViewById(R.id.light);
             pressure = itemView.findViewById(R.id.pressure);
-
-            itemView.setOnTouchListener((v, event) -> {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    touchHelper.startDrag(this);
-                }
-                return false;
-            });
         }
     }
 

@@ -77,6 +77,7 @@ public class InfoOrderActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 sendValues(String.format("%s:%s", roomName, adapter.getOrder()));
+                returnToInfoListActivity();
             }
         });
 
@@ -99,9 +100,7 @@ public class InfoOrderActivity extends AppCompatActivity {
             values,
             msg -> {return null;},
             () -> {
-                runOnUiThread(() -> {
-                    Toast.makeText(this, "Échec de la récupération des données", Toast.LENGTH_SHORT).show();
-                });
+                runOnUiThread(() -> {});
                 return null;
             }
         );
